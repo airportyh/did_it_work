@@ -5,6 +5,8 @@ test('it executes command and calls good', function(done){
   process('echo hello')
     .good(function(stdout){
       assert.equal(stdout, 'hello\n')
+    })
+    .complete(function(){
       done()
     })
 })
@@ -30,27 +32,15 @@ test('looks for good pattern', function(done){
     })
 })
 
-test('calls exit if doesnt find good pattern', function(done){
+test('doesnt call good or bad if doesnt find good pattern', function(done){
   process('echo blah')
     .goodIfMatches(/hello/)
-    .good(function(){
-      assert.fail()
-    })
-    .bad(function(){
-      assert.fail()
-    })
+    .good(assert.fail)
+    .bad(assert.fail)
     .complete(function(){
       done()
     })
 })
-
-/*test('matches bad pattern', function(done){
-  process('echo bad')
-    .badIfMatches(/bad/)
-    .bad(function(){
-      done()
-    })
-})*/
 
 test('calls bad if times out w/o finding good pattern', function(done){
   process('sleep 3')
@@ -62,3 +52,32 @@ test('calls bad if times out w/o finding good pattern', function(done){
       done()
     })
 })
+
+test('matches bad pattern', function(done){
+  process('echo bad')
+    .badIfMatches(/bad/)
+    .bad(function(){
+      done()
+    })
+})
+
+test('doesnt call good or bad if doent find bad pattern', function(done){
+  process('echo good')
+    .badIfMatches(/bad/)
+    .bad(assert.fail)
+    .good(assert.fail)
+    .complete(function(){
+      done()
+    })
+})
+
+test('calls good if times out w/o finding bad pattern', function(done){
+  process('sleep 3')
+    .badIfMatches(/bad/, 100)
+    .bad(assert.fail)
+    .good(function(stdout){
+      assert.equal(stdout, '')
+      done()
+    })
+})
+
