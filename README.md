@@ -26,4 +26,17 @@ Usage
         console.log('In any case, the program exited')
       })
 
+Use `spawn` instead of `exec`
+-----------------------------
+
+If you pass one string argument to the function, it will use `child_process.exec` to create the process. If, on the other hand, you need to use `child_process.spawn`, pass two arguments instead, the first being the executable and the second being an array of arguments. Example
+
+    process('echo', ['hello', 'world'])
+      .complete(function(stdout){
+        console.log('The program returned ' + stdout)
+      })
+
+RTFT
+----
+
 To see more, read the tests in `tests.js`.
