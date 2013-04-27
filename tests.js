@@ -81,3 +81,10 @@ test('calls good if times out w/o finding bad pattern', function(done){
     })
 })
 
+test('it uses spawn if you give 2 arguments (exe, args)', function(done){
+  process('echo', ['good'])
+    .complete(function(stdout){
+      assert.equal(stdout, 'good\n')
+      done()
+    })
+})

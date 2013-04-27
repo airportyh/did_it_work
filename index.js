@@ -1,11 +1,16 @@
 var child_process = require('child_process')
 
-module.exports = function(command){
-  return new Process(command)
+module.exports = function(arg1, arg2){
+  return new Process(arg1, arg2)
 }
 
-function Process(command){
-  this.command = command
+function Process(arg1, arg2){
+  if (arg2){
+    this.exe = arg1
+    this.args = arg2
+  }else{
+    this.command = arg1
+  }
   this.opts = {}
   this.stdout = ''
   this.stderr = ''
@@ -66,7 +71,7 @@ Process.prototype = {
         this.opts.badIfMatchesTimeout)
     }
 
-    this.process = child_process.exec(this.command)
+    this.process = this.createProcess()
 
     this.boundListeners.onStdoutData = this.onStdoutData.bind(this)
     this.process.stdout.on('data', this.boundListeners.onStdoutData)
@@ -75,6 +80,14 @@ Process.prototype = {
     this.process.stderr.on('data', this.boundListeners.onStderrData)
 
     this.process.once('close', this.onProcessClose.bind(this))
+  },
+
+  createProcess: function(){
+    if (this.exe){
+      return child_process.spawn(this.exe, this.args || [])
+    }else{
+      return child_process.exec(this.command)
+    }
   },
 
   onStdoutData: function(data){
