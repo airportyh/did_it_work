@@ -32,6 +32,14 @@ test('looks for good pattern', function(done){
     })
 })
 
+test('good pattern can also be string (which interprets as regex)', function(done){
+  process('echo hello')
+    .goodIfMatches('hello')
+    .good(function(){
+      done()
+    })
+})
+
 test('doesnt call good or bad if doesnt find good pattern', function(done){
   process('echo blah')
     .goodIfMatches(/hello/)
