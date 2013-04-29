@@ -11,13 +11,12 @@ test('it executes command and calls complete', function(done){
 
 test('it calls bad if exit code is bad', function(done){
   process('blarg')
-    .good(function(){
-      assert.fail()
-    })
-    .bad(function(err, stderr){
+    .good(assert.fail)
+    .bad(function(err, stdout, stderr){
       assert(err instanceof Error)
       assert.match(err.message, /blarg: command not found/)
       assert.match(stderr, /blarg: command not found/)
+      assert.equal(stdout, '')
       done()
     })
 })
@@ -124,6 +123,16 @@ test('it uses spawn if you give 2 arguments (exe, args)', function(done){
 test('it kills process', function(done){
   process('sleep 3')
     .kill(function(){
+      done()
+    })
+})
+
+test('it passes stderr and stdout to bad', function(done){
+  process('node', ['test_prog.js'])
+    .badIfMatches(/hello/)
+    .bad(function(err, stdout, stderr){
+      assert.equal(stdout, 'hello to stdout\n')
+      assert.equal(stderr, 'hello to stderr\n')
       done()
     })
 })

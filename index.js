@@ -91,12 +91,13 @@ Process.prototype = {
   },
 
   onStdoutData: function(data){
+    data = String(data)
     this.stdout += data
     if (this.foundGoodMatch(data)){
       this.determine('good', data)
     }
     if (this.foundBadMatch(data)){
-      this.determine('bad', data)
+      this.determine('bad', new Error('Found bad match'))
     }
   },
 
@@ -127,14 +128,12 @@ Process.prototype = {
   },
 
   onStderrData: function(data){
-    this.stderr += data
+    this.stderr += String(data)
   },
 
   onProcessClose: function(code){
     if (code !== 0){
-      this.determine('bad', 
-        new Error(this.stderr),
-        this.stderr)
+      this.determine('bad', new Error(this.stderr))
     }
     this.opts.complete(this.stdout, this.stderr)
   },
@@ -152,6 +151,8 @@ Process.prototype = {
   determine: function(type){
     if (this.successDetermined) return
     var args = Array.prototype.slice.call(arguments, 1)
+    args.push(this.stdout)
+    args.push(this.stderr)
     this.opts[type].apply(null, args)
     this.successDetermined = true
     this.cleanupListeners()
