@@ -105,7 +105,7 @@ Process.prototype = {
     if (!pattern) return false
     var lines = stdout.split('\n')
     return lines.some(function(line){
-      return !!line.match(pattern)
+      return this.patternMatches(line, pattern)
     }, this)
   },
 
@@ -116,6 +116,14 @@ Process.prototype = {
     return lines.some(function(line){
       return !!line.match(pattern)
     }, this)
+  },
+
+  patternMatches: function(line, pattern){
+    if (typeof pattern === 'string'){
+      return line.indexOf(pattern) !== -1
+    }else{ // regex
+      return !!line.match(pattern)
+    }
   },
 
   onStderrData: function(data){
@@ -154,6 +162,31 @@ Process.prototype = {
       this.boundListeners.onStdoutData)
     this.process.stderr.removeListener('data',
       this.boundListeners.onStderrData)
+  },
+
+  _kill: function(){
+    var args = Array.prototype.slice.apply(arguments)
+    var sig = 'SIGTERM'
+    if (typeof args[0] === 'string'){
+      sig = args.shift()
+    }
+    var callback = args.shift()
+    if (callback) this.process.once('exit', callback)
+    this.process.kill(sig)
+  },
+
+  kill: function(){
+    var args = arguments
+    
+    var doit = function(){
+      this._kill.apply(this, args)
+    }.bind(this)
+
+    if (this.process){
+      doit()
+    }else{
+      process.nextTick(doit)
+    }
   }
 
 }

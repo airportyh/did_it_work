@@ -1,12 +1,10 @@
 var assert = require('chai').assert
 var process = require('./index')
 
-test('it executes command and calls good', function(done){
+test('it executes command and calls complete', function(done){
   process('echo hello')
-    .good(function(stdout){
+    .complete(function(stdout){
       assert.equal(stdout, 'hello\n')
-    })
-    .complete(function(){
       done()
     })
 })
@@ -25,17 +23,40 @@ test('it calls bad if exit code is bad', function(done){
 })
 
 test('looks for good pattern', function(done){
+  var goodCalled = false
   process('echo hello')
     .goodIfMatches(/hello/)
     .good(function(){
+      goodCalled = true
+    })
+    .complete(function(){
+      assert(goodCalled)
       done()
     })
 })
 
-test('good pattern can also be string (which interprets as regex)', function(done){
+test('good pattern can also be string (they get matche literally) - match', function(done){
+  var goodCalled = false
   process('echo hello')
     .goodIfMatches('hello')
     .good(function(){
+      goodCalled = true
+    })
+    .complete(function(){
+      assert(goodCalled)
+      done()
+    })
+})
+
+test('good pattern can also be string (they get matche literally) - no match', function(done){
+  var goodCalled = false
+  process('echo hello')
+    .goodIfMatches('he.lo')
+    .good(function(){
+      goodCalled = true
+    })
+    .complete(function(){
+      assert.isFalse(goodCalled)
       done()
     })
 })
@@ -53,18 +74,21 @@ test('doesnt call good or bad if doesnt find good pattern', function(done){
 test('calls bad if times out w/o finding good pattern', function(done){
   process('sleep 3')
     .goodIfMatches(/hello/, 100)
-    .good(function(){
-      assert.fail()
-    })
+    .good(assert.fail)
     .bad(function(){
       done()
     })
 })
 
 test('matches bad pattern', function(done){
+  var badCalled = false
   process('echo bad')
     .badIfMatches(/bad/)
     .bad(function(){
+      badCalled = true
+    })
+    .complete(function(){
+      assert(badCalled)
       done()
     })
 })
@@ -93,6 +117,13 @@ test('it uses spawn if you give 2 arguments (exe, args)', function(done){
   process('echo', ['good'])
     .complete(function(stdout){
       assert.equal(stdout, 'good\n')
+      done()
+    })
+})
+
+test('it kills process', function(done){
+  process('sleep 3')
+    .kill(function(){
       done()
     })
 })
