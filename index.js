@@ -139,7 +139,7 @@ Process.prototype = {
     if (code !== 0){
       this.determine('bad', new Error(this.stderr))
     }
-    this.opts.complete(this.stdout, this.stderr)
+    this.opts.complete(this.error, this.stdout, this.stderr)
   },
 
   goodIfMatchesTimedOut: function(){
@@ -155,6 +155,10 @@ Process.prototype = {
   determine: function(type){
     if (this.successDetermined) return
     var args = Array.prototype.slice.call(arguments, 1)
+    // save error for complete call
+    if (type === 'bad'){
+      this.error = args[0]
+    }
     args.push(this.stdout)
     args.push(this.stderr)
     this.opts[type].apply(null, args)

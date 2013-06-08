@@ -3,7 +3,7 @@ var process = require('./index')
 
 test('it executes command and calls complete', function(done){
   process('echo hello')
-    .complete(function(stdout){
+    .complete(function(err, stdout){
       assert.equal(stdout, 'hello\n')
       done()
     })
@@ -114,7 +114,7 @@ test('calls good if times out w/o finding bad pattern', function(done){
 
 test('it uses spawn if you give 2 arguments (exe, args)', function(done){
   process('echo', ['good'])
-    .complete(function(stdout){
+    .complete(function(err, stdout){
       assert.equal(stdout, 'good\n')
       done()
     })
@@ -137,10 +137,19 @@ test('it passes stderr and stdout to bad', function(done){
     })
 })
 
+test('it passes err to complete', function(done){
+  process('node', ['test_prog.js'])
+    .badIfMatches(/hello/)
+    .complete(function(err, stdout, stderr){
+      assert.equal(err.message, 'Found bad match')
+      done()
+    })
+})
+
 test('it takes options (exec)', function(done){
   process('pwd')
     .options({cwd: '..'})
-    .complete(function(stdout){
+    .complete(function(err, stdout){
       var parentDir = stdout.trim().match(/([a-z_]+)$/)[1]
       assert.notEqual(parentDir, 'did_it_work')
       done()
@@ -150,7 +159,7 @@ test('it takes options (exec)', function(done){
 test('it takes options (spawn)', function(done){
   process('pwd', ['-L'])
     .options({cwd: '..'})
-    .complete(function(stdout, stderr){
+    .complete(function(err, stdout, stderr){
       var parentDir = stdout.trim().match(/([a-z_]+)$/)[1]
       assert.notEqual(parentDir, 'did_it_work')
       done()
