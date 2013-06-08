@@ -46,9 +46,13 @@ Process.prototype = {
     return this
   },
 
-
   complete: function(callback){
     this.opts.complete = callback
+    return this
+  },
+
+  options: function(options){
+    this.opts.options = options
     return this
   },
 
@@ -84,9 +88,9 @@ Process.prototype = {
 
   createProcess: function(){
     if (this.exe){
-      return child_process.spawn(this.exe, this.args || [])
+      return child_process.spawn(this.exe, this.args || [], this.opts.options)
     }else{
-      return child_process.exec(this.command)
+      return child_process.exec(this.command, this.opts.options)
     }
   },
 

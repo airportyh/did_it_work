@@ -136,3 +136,23 @@ test('it passes stderr and stdout to bad', function(done){
       done()
     })
 })
+
+test('it takes options (exec)', function(done){
+  process('pwd')
+    .options({cwd: '..'})
+    .complete(function(stdout){
+      var parentDir = stdout.trim().match(/([a-z_]+)$/)[1]
+      assert.notEqual(parentDir, 'did_it_work')
+      done()
+    })
+})
+
+test('it takes options (spawn)', function(done){
+  process('pwd', ['-L'])
+    .options({cwd: '..'})
+    .complete(function(stdout, stderr){
+      var parentDir = stdout.trim().match(/([a-z_]+)$/)[1]
+      assert.notEqual(parentDir, 'did_it_work')
+      done()
+    })
+})
