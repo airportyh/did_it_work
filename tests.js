@@ -141,7 +141,7 @@ test('it passes err to complete', function(done){
   process('node', ['test_prog.js'])
     .badIfMatches(/hello/)
     .complete(function(err, stdout, stderr){
-      assert.equal(err.message, 'Found bad match')
+      assert.equal(err.message, 'Found bad match(/hello/): hello to stdout\n')
       done()
     })
 })

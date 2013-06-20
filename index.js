@@ -101,7 +101,7 @@ Process.prototype = {
       this.determine('good', data)
     }
     if (this.foundBadMatch(data)){
-      this.determine('bad', new Error('Found bad match'))
+      this.determine('bad', new Error('Found bad match(' + this.opts.badIfMatches + '): ' + data))
     }
   },
 
